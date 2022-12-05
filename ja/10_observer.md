@@ -1,21 +1,23 @@
 # 10.監視
-SymbolのノードはWebSocket通信でブロックチェーンの状態変化を監視することが可能です。  
+
+Symbol のノードは WebSocket 通信でブロックチェーンの状態変化を監視することが可能です。
 
 ## 10.1 リスナー設定
 
-WebSocketを生成してリスナーの設定を行います。
+WebSocket を生成してリスナーの設定を行います。
 
 ```js
 nsRepo = repo.createNamespaceRepository();
-wsEndpoint = NODE.replace('http', 'ws') + "/ws";
-listener = new sym.Listener(wsEndpoint,nsRepo,WebSocket);
+wsEndpoint = NODE.replace("http", "ws") + "/ws";
+listener = new sym.Listener(wsEndpoint, nsRepo, WebSocket);
 listener.open();
 ```
 
 エンドポイントのフォーマットは以下の通りです。
+
 - wss://{node url}:3001/ws
 
-何も通信が無ければ、listenerは1分で切断されます。
+何も通信が無ければ、listener は 1 分で切断されます。
 
 ## 10.2 受信検知
 
@@ -23,25 +25,24 @@ listener.open();
 
 ```js
 listener.open().then(() => {
+  //承認トランザクションの検知
+  listener.confirmed(alice.address).subscribe((tx) => {
+    //受信後の処理を記述
+    console.log(tx);
+  });
 
-    //承認トランザクションの検知
-    listener.confirmed(alice.address)
-    .subscribe(tx=>{
-        //受信後の処理を記述
-        console.log(tx);
-    });
-
-    //未承認トランザクションの検知
-    listener.unconfirmedAdded(alice.address)
-    .subscribe(tx=>{
-        //受信後の処理を記述
-        console.log(tx);
-    });
+  //未承認トランザクションの検知
+  listener.unconfirmedAdded(alice.address).subscribe((tx) => {
+    //受信後の処理を記述
+    console.log(tx);
+  });
 });
 ```
-上記リスナーを実行後、aliceへの送信トランザクションをアナウンスしてください。
+
+上記リスナーを実行後、alice への送信トランザクションをアナウンスしてください。
 
 ###### 出力例
+
 ```js
 > Promise {<pending>}
 > TransferTransaction {type: 16724, networkType: 152, version: 1, deadline: Deadline, maxFee: UInt64, …}
@@ -64,7 +65,7 @@ listener.open().then(() => {
     version: 1
 ```
 
-未承認トランザクションは transactionInfo.height=0　で受信します。
+未承認トランザクションは transactionInfo.height=0 　で受信します。
 
 ## 10.3 ブロック監視
 
@@ -72,13 +73,13 @@ listener.open().then(() => {
 
 ```js
 listener.open().then(() => {
-
-    //ブロック生成の検知
-    listener.newBlock()
-    .subscribe(block=>console.log(block));
+  //ブロック生成の検知
+  listener.newBlock().subscribe((block) => console.log(block));
 });
 ```
+
 ###### 出力例
+
 ```js
 > Promise {<pending>}
 > NewBlock
@@ -103,9 +104,9 @@ listener.open().then(() => {
     version: 1
 ```
 
-listener.newBlock()をしておくと、約30秒ごとに通信が発生するのでWebSocketの切断が起こりにくくなります。  
-まれに、ブロック生成が1分を超える場合があるのでその場合はリスナーを再接続する必要があります。
-（その他の事象で切断される可能性もあるので、万全を期したい場合は後述するoncloseで補足しましょう）
+listener.newBlock()をしておくと、約 30 秒ごとに通信が発生するので WebSocket の切断が起こりにくくなります。  
+まれに、ブロック生成が 1 分を超える場合があるのでその場合はリスナーを再接続する必要があります。
+（その他の事象で切断される可能性もあるので、万全を期したい場合は後述する onclose で補足しましょう）
 
 ## 10.4 署名要求
 
@@ -113,12 +114,15 @@ listener.newBlock()をしておくと、約30秒ごとに通信が発生する�
 
 ```js
 listener.open().then(() => {
-    //署名が必要なアグリゲートボンデッドトランザクション発生の検知
-    listener.aggregateBondedAdded(alice.address)
-    .subscribe(async tx=>console.log(tx));
+  //署名が必要なアグリゲートボンデッドトランザクション発生の検知
+  listener
+    .aggregateBondedAdded(alice.address)
+    .subscribe(async (tx) => console.log(tx));
 });
 ```
+
 ###### 出力例
+
 ```js
 
 > AggregateTransaction
@@ -145,13 +149,14 @@ listener.open().then(() => {
 指定アドレスが関係するすべてのアグリゲートトランザクションが検知されます。
 連署が必要かどうかは別途フィルターして判断します。
 
-
 ## 10.5 現場で使えるヒント
+
 ### 常時コネクション
 
 一覧からランダムに選択し、接続を試みます。
 
 ##### ノードへの接続
+
 ```js
 //ノード一覧
 NODES = ["https://node.com:3001",...];
@@ -187,7 +192,7 @@ function connectNode(nodes) {
         req.ontimeout = function (e) {
             console.log("ontimeout")
             return connectNode(nodes).then(node => resolve(node));
-        };  
+        };
 
     req.send();
     });
@@ -195,58 +200,57 @@ function connectNode(nodes) {
 ```
 
 タイムアウト値を設定しておき、応答の悪いノードに接続した場合は選びなおします。
-エンドポイント /node/health　を確認してステータス異常の場合はノードを選びなおします。
-
+エンドポイント /node/health 　を確認してステータス異常の場合はノードを選びなおします。
 
 ##### レポジトリの作成
+
 ```js
-function createRepo(nodes){
+function createRepo(nodes) {
+  return connectNode(nodes).then(async function onFulfilled(node) {
+    const repo = new sym.RepositoryFactoryHttp(node);
 
-    return connectNode(nodes).then(async function onFulfilled(node) {
-
-        const repo = new sym.RepositoryFactoryHttp(node);
-
-        try{
-            epochAdjustment = await repo.getEpochAdjustment().toPromise();
-        }catch(error){
-          console.log("fail createRepo");
-          return await createRepo(nodes);
-        }
-        return await repo;
-    });
+    try {
+      epochAdjustment = await repo.getEpochAdjustment().toPromise();
+    } catch (error) {
+      console.log("fail createRepo");
+      return await createRepo(nodes);
+    }
+    return await repo;
+  });
 }
 ```
-まれに /network/properties のエンドポイントが解放されていないノードが存在するため、
-getEpochAdjustment() の情報を取得してチェックを行います。取得できない場合は再帰的にcreateRepoを読み込みます。
 
+まれに /network/properties のエンドポイントが解放されていないノードが存在するため、
+getEpochAdjustment() の情報を取得してチェックを行います。取得できない場合は再帰的に createRepo を読み込みます。
 
 ##### リスナーの常時接続
+
 ```js
-async function listenerKeepOpening(nodes){
+async function listenerKeepOpening(nodes) {
+  const repo = await createRepo(NODES);
+  let wsEndpoint = repo.url.replace("http", "ws") + "/ws";
+  const nsRepo = repo.createNamespaceRepository();
+  const lner = new sym.Listener(wsEndpoint, nsRepo, WebSocket);
+  try {
+    await lner.open();
+    lner.newBlock();
+  } catch (e) {
+    console.log("fail websocket");
+    return await listenerKeepOpening(nodes);
+  }
 
-    const repo = await createRepo(NODES);
-    let wsEndpoint = repo.url.replace('http', 'ws') + "/ws";
-    const nsRepo = repo.createNamespaceRepository();
-    const lner = new sym.Listener(wsEndpoint,nsRepo,WebSocket);
-    try{
-        await lner.open();
-        lner.newBlock();
-    }catch(e){
-        console.log("fail websocket");
-        return await listenerKeepOpening(nodes);
-    }
-
-    lner.webSocket.onclose = async function(){
-        console.log("listener onclose");
-        return await listenerKeepOpening(nodes);
-    }
+  lner.webSocket.onclose = async function () {
+    console.log("listener onclose");
+    return await listenerKeepOpening(nodes);
+  };
   return lner;
 }
 ```
 
-リスナーがcloseした場合は再接続します。
+リスナーが close した場合は再接続します。
 
 ##### リスナー開始
+
 ```js
 listener = await listenerKeepOpening(NODES);
 ```
@@ -254,77 +258,89 @@ listener = await listenerKeepOpening(NODES);
 ### 未署名トランザクション自動連署
 
 未署名のトランザクションを検知して、署名＆ネットワークにアナウンスします。  
-初期画面表示時と画面閲覧中の受信と２パターンの検知が必要です。  
+初期画面表示時と画面閲覧中の受信と２パターンの検知が必要です。
 
 ```js
 //rxjs.operatorsの読み込み
-op  = require("/node_modules/rxjs/operators");
+op = require("/node_modules/rxjs/operators");
 
 //アグリゲートトランザクション検知
 bondedListener = listener.aggregateBondedAdded(bob.address);
-bondedHttp = txRepo.search({address:bob.address,group:sym.TransactionGroup.Partial})
-.pipe(
+bondedHttp = txRepo
+  .search({ address: bob.address, group: sym.TransactionGroup.Partial })
+  .pipe(
     op.delay(2000),
-    op.mergeMap(page => page.data)
-);
+    op.mergeMap((page) => page.data)
+  );
 
 //選択中アカウントの完了トランザクション検知リスナー
-const statusChanged = function(address,hash){
-
-    const transactionObservable = listener.confirmed(address);
-    const errorObservable = listener.status(address, hash);
-    return rxjs.merge(transactionObservable, errorObservable).pipe(
-        op.first(),
-        op.map((errorOrTransaction) => {
-            if (errorOrTransaction.constructor.name === "TransactionStatusError") {
-                throw new Error(errorOrTransaction.code);
-            } else {
-                return errorOrTransaction;
-            }
-        }),
-    );
-}
+const statusChanged = function (address, hash) {
+  const transactionObservable = listener.confirmed(address);
+  const errorObservable = listener.status(address, hash);
+  return rxjs.merge(transactionObservable, errorObservable).pipe(
+    op.first(),
+    op.map((errorOrTransaction) => {
+      if (errorOrTransaction.constructor.name === "TransactionStatusError") {
+        throw new Error(errorOrTransaction.code);
+      } else {
+        return errorOrTransaction;
+      }
+    })
+  );
+};
 
 //連署実行
-function exeAggregateBondedCosignature(tx){
-
-    txRepo.getTransactionsById([tx.transactionInfo.hash],sym.TransactionGroup.Partial)
-    .pipe(
-        //トランザクションが抽出された場合のみ
-        op.filter(aggTx => aggTx.length > 0)
+function exeAggregateBondedCosignature(tx) {
+  txRepo
+    .getTransactionsById(
+      [tx.transactionInfo.hash],
+      sym.TransactionGroup.Partial
     )
-    .subscribe(async aggTx =>{
-
-        //インナートランザクションの署名者に自分が指定されている場合
-        if(aggTx[0].innerTransactions.find((inTx) => inTx.signer.equals(bob.publicAccount))!= undefined){
-            //Aliceのトランザクションで署名
-            const cosignatureTx = sym.CosignatureTransaction.create(aggTx[0]);
-            const signedTx = bob.signCosignatureTransaction(cosignatureTx);
-            const cosignedAggTx = await txRepo.announceAggregateBondedCosignature(signedTx).toPromise();
-            statusChanged(bob.address,signedTx.parentHash).subscribe(res=>{
-              console.log(res);
-            });
-        }
+    .pipe(
+      //トランザクションが抽出された場合のみ
+      op.filter((aggTx) => aggTx.length > 0)
+    )
+    .subscribe(async (aggTx) => {
+      //インナートランザクションの署名者に自分が指定されている場合
+      if (
+        aggTx[0].innerTransactions.find((inTx) =>
+          inTx.signer.equals(bob.publicAccount)
+        ) != undefined
+      ) {
+        //Aliceのトランザクションで署名
+        const cosignatureTx = sym.CosignatureTransaction.create(aggTx[0]);
+        const signedTx = bob.signCosignatureTransaction(cosignatureTx);
+        const cosignedAggTx = await txRepo
+          .announceAggregateBondedCosignature(signedTx)
+          .toPromise();
+        statusChanged(bob.address, signedTx.parentHash).subscribe((res) => {
+          console.log(res);
+        });
+      }
     });
 }
 
-bondedSubscribe = function(observer){
-    observer.pipe(
-
-        //すでに署名済みでない場合
-        op.filter(tx => {
-            return !tx.signedByAccount(sym.PublicAccount.createFromPublicKey(bob.publicKey ,networkType));
-        })
-    ).subscribe(tx=>{
-        console.log(tx);
-        exeAggregateBondedCosignature(tx);
+bondedSubscribe = function (observer) {
+  observer
+    .pipe(
+      //すでに署名済みでない場合
+      op.filter((tx) => {
+        return !tx.signedByAccount(
+          sym.PublicAccount.createFromPublicKey(bob.publicKey, networkType)
+        );
+      })
+    )
+    .subscribe((tx) => {
+      console.log(tx);
+      exeAggregateBondedCosignature(tx);
     });
-}
+};
 
 bondedSubscribe(bondedListener);
 bondedSubscribe(bondedHttp);
 ```
 
 ##### 注意事項
+
 スキャムトランザクションを自動署名しないように、
 送信元のアカウントを確認するなどのチェック処理を必ず実施するようにしてください。

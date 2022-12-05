@@ -7,4 +7,4 @@ Start learning from the links below!
 
 # Languages
 
-* [japanese](https://ymuichiro.github.io/quick_learning_symbol_test/ja/)
+- [japanese](https://ymuichiro.github.io/quick_learning_symbol_test/ja/)

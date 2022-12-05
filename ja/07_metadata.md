@@ -1,38 +1,44 @@
 # 7.メタデータ
 
-アカウント・モザイク・ネームスペースに対してKey-Value形式のデータを登録することができます。  
-Valueの最大値は1024バイトです。
-本章ではモザイク・ネームスペースの作成アカウントとメタデータの作成アカウントがどちらもAliceであることを前提に説明します。
+アカウント・モザイク・ネームスペースに対して Key-Value 形式のデータを登録することができます。  
+Value の最大値は 1024 バイトです。
+本章ではモザイク・ネームスペースの作成アカウントとメタデータの作成アカウントがどちらも Alice であることを前提に説明します。
 
 本章のサンプルスクリプトを実行する前に以下を実行して必要ライブラリを読み込んでおいてください。
+
 ```js
 metaRepo = repo.createMetadataRepository();
 mosaicRepo = repo.createMosaicRepository();
 metaService = new sym.MetadataTransactionService(metaRepo);
 ```
+
 ## 7.1 アカウントに登録
 
-アカウントに対して、Key-Value値を登録します。
+アカウントに対して、Key-Value 値を登録します。
 
 ```js
 key = sym.KeyGenerator.generateUInt64Key("key_account");
 value = "test";
 
-tx = await metaService.createAccountMetadataTransaction(
+tx = await metaService
+  .createAccountMetadataTransaction(
     undefined,
     networkType,
     alice.address, //メタデータ記録先アドレス
-    key,value, //Key-Value値
+    key,
+    value, //Key-Value値
     alice.address //メタデータ作成者アドレス
-).toPromise();
+  )
+  .toPromise();
 
 aggregateTx = sym.AggregateTransaction.createComplete(
   sym.Deadline.create(epochAdjustment),
   [tx.toAggregate(alice.publicAccount)],
-  networkType,[]
+  networkType,
+  []
 ).setMaxFeeForAggregate(100, 0);
 
-signedTx = alice.sign(aggregateTx,generationHash);
+signedTx = alice.sign(aggregateTx, generationHash);
 await txRepo.announce(signedTx).toPromise();
 ```
 
@@ -40,66 +46,76 @@ await txRepo.announce(signedTx).toPromise();
 また、記録先アカウントと記録者アカウントが同一でもアグリゲートトランザクションにする必要があります。
 
 異なるアカウントのメタデータに登録する場合は署名時に
-signTransactionWithCosignatoriesを使用します。
+signTransactionWithCosignatories を使用します。
 
 ```js
-tx = await metaService.createAccountMetadataTransaction(
+tx = await metaService
+  .createAccountMetadataTransaction(
     undefined,
     networkType,
     bob.address, //メタデータ記録先アドレス
-    key,value, //Key-Value値
+    key,
+    value, //Key-Value値
     alice.address //メタデータ作成者アドレス
-).toPromise();
+  )
+  .toPromise();
 
 aggregateTx = sym.AggregateTransaction.createComplete(
   sym.Deadline.create(epochAdjustment),
   [tx.toAggregate(alice.publicAccount)],
-  networkType,[]
+  networkType,
+  []
 ).setMaxFeeForAggregate(100, 1); // 第二引数に連署者の数:1
 
 signedTx = aggregateTx.signTransactionWithCosignatories(
-  alice,[bob],generationHash,// 第二引数に連署者
+  alice,
+  [bob],
+  generationHash // 第二引数に連署者
 );
 await txRepo.announce(signedTx).toPromise();
 ```
 
-bobの秘密鍵が分からない場合はこの後の章で説明する
+bob の秘密鍵が分からない場合はこの後の章で説明する
 アグリゲートボンデッドトランザクション、あるいはオフライン署名を使用する必要があります。
 
 ## 7.2 モザイクに登録
 
-ターゲットとなるモザイクに対して、Key値・ソースアカウントの複合キーでValue値を登録します。
+ターゲットとなるモザイクに対して、Key 値・ソースアカウントの複合キーで Value 値を登録します。
 登録・更新にはモザイクを作成したアカウントの署名が必要です。
 
 ```js
 mosaicId = new sym.MosaicId("1275B0B7511D9161");
 mosaicInfo = await mosaicRepo.getMosaic(mosaicId).toPromise();
 
-key = sym.KeyGenerator.generateUInt64Key('key_mosaic');
-value = 'test';
+key = sym.KeyGenerator.generateUInt64Key("key_mosaic");
+value = "test";
 
-tx = await metaService.createMosaicMetadataTransaction(
-  undefined,
-  networkType,
-  mosaicInfo.ownerAddress, //モザイク作成者アドレス
-  mosaicId,
-  key,value, //Key-Value値
-  alice.address
-).toPromise();
+tx = await metaService
+  .createMosaicMetadataTransaction(
+    undefined,
+    networkType,
+    mosaicInfo.ownerAddress, //モザイク作成者アドレス
+    mosaicId,
+    key,
+    value, //Key-Value値
+    alice.address
+  )
+  .toPromise();
 
 aggregateTx = sym.AggregateTransaction.createComplete(
-    sym.Deadline.create(epochAdjustment),
-    [tx.toAggregate(alice.publicAccount)],
-    networkType,[]
+  sym.Deadline.create(epochAdjustment),
+  [tx.toAggregate(alice.publicAccount)],
+  networkType,
+  []
 ).setMaxFeeForAggregate(100, 0);
 
-signedTx = alice.sign(aggregateTx,generationHash);
+signedTx = alice.sign(aggregateTx, generationHash);
 await txRepo.announce(signedTx).toPromise();
 ```
 
 ## 7.3 ネームスペースに登録
 
-ネームスペースに対して、Key-Value値を登録します。
+ネームスペースに対して、Key-Value 値を登録します。
 登録・更新にはネームスペースを作成したアカウントの署名が必要です。
 
 ```js
@@ -107,38 +123,48 @@ nsRepo = repo.createNamespaceRepository();
 namespaceId = new sym.NamespaceId("xembook");
 namespaceInfo = await nsRepo.getNamespace(namespaceId).toPromise();
 
-key = sym.KeyGenerator.generateUInt64Key('key_namespace');
-value = 'test';
+key = sym.KeyGenerator.generateUInt64Key("key_namespace");
+value = "test";
 
-tx = await metaService.createNamespaceMetadataTransaction(
-    undefined,networkType,
+tx = await metaService
+  .createNamespaceMetadataTransaction(
+    undefined,
+    networkType,
     namespaceInfo.ownerAddress, //ネームスペースの作成者アドレス
     namespaceId,
-    key,value, //Key-Value値
+    key,
+    value, //Key-Value値
     alice.address //メタデータの登録者
-).toPromise();
+  )
+  .toPromise();
 
 aggregateTx = sym.AggregateTransaction.createComplete(
-    sym.Deadline.create(epochAdjustment),
-    [tx.toAggregate(alice.publicAccount)],
-    networkType,[]
+  sym.Deadline.create(epochAdjustment),
+  [tx.toAggregate(alice.publicAccount)],
+  networkType,
+  []
 ).setMaxFeeForAggregate(100, 0);
 
-signedTx = alice.sign(aggregateTx,generationHash);
+signedTx = alice.sign(aggregateTx, generationHash);
 await txRepo.announce(signedTx).toPromise();
 ```
 
 ## 7.4 確認
+
 登録したメタデータを確認します。
 
 ```js
-res = await metaRepo.search({
-  targetAddress:alice.address,
-  sourceAddress:alice.address}
-).toPromise();
+res = await metaRepo
+  .search({
+    targetAddress: alice.address,
+    sourceAddress: alice.address,
+  })
+  .toPromise();
 console.log(res);
 ```
+
 ###### 出力例
+
 ```js
 data: Array(3)
   0: Metadata
@@ -174,16 +200,18 @@ data: Array(3)
       id: Id {lower: 646738821, higher: 2754876907}
       value: "test"
 ```
-metadataTypeは以下の通りです。
+
+metadataType は以下の通りです。
+
 ```js
 sym.MetadataType
 {0: 'Account', 1: 'Mosaic', 2: 'Namespace'}
 ```
 
 ### 注意事項
+
 メタデータはキー値で素早く情報にアクセスできるというメリットがある一方で更新可能であることに注意しておく必要があります。
 更新には、発行者アカウントと登録先アカウントの署名が必要のため、それらのアカウントの管理状態が信用できる場合のみ使用するようにしてください。
-
 
 ## 7.5 現場で使えるヒント
 
@@ -201,5 +229,3 @@ sym.MetadataType
 このやりとりにプラットフォームに依存する情報はありません。
 メタデータを活用することで、大学は学生の所有するアカウントにメタデータを発行することができ、
 企業は大学の公開鍵と学生のモザイク(アカウント)所有証明でメタデータに記載された卒業証明を検証することができます。
-
-

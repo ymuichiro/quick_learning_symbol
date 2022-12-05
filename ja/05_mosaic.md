@@ -1,14 +1,15 @@
 # 5.モザイク
 
 本章ではモザイクの設定とその生成方法について解説します。
-Symbolではトークンのことをモザイクと表現します。
+Symbol ではトークンのことをモザイクと表現します。
 
-> Wikipediaによると、トークンとは「紀元前8000年頃から紀元前3000年までのメソポタミアの地層から出土する直径が1cm前後の粘土で作られたさまざまな形状の物体」のことを指します。一方でモザイクとは「小片を寄せあわせ埋め込んで、絵（図像）や模様を表す装飾美術の技法。石、陶磁器（モザイクタイル）、有色無色のガラス、貝殻、木などが使用され、建築物の床や壁面、あるいは工芸品の装飾のために施される。」とあります。SymbolにおいてモザイクとはSymbolが作りなすエコシステムの様相を表すさまざまな構成要素、と考えることができます。
+> Wikipedia によると、トークンとは「紀元前 8000 年頃から紀元前 3000 年までのメソポタミアの地層から出土する直径が 1cm 前後の粘土で作られたさまざまな形状の物体」のことを指します。一方でモザイクとは「小片を寄せあわせ埋め込んで、絵（図像）や模様を表す装飾美術の技法。石、陶磁器（モザイクタイル）、有色無色のガラス、貝殻、木などが使用され、建築物の床や壁面、あるいは工芸品の装飾のために施される。」とあります。Symbol においてモザイクとは Symbol が作りなすエコシステムの様相を表すさまざまな構成要素、と考えることができます。
 
 ## 5.1 モザイク生成
 
 モザイク生成には
 作成するモザイクを定義します。
+
 ```js
 supplyMutable = true; //供給量変更の可否
 transferable = false; //第三者への譲渡可否
@@ -18,23 +19,24 @@ revokable = true; //発行者からの還収可否
 //モザイク定義
 nonce = sym.MosaicNonce.createRandom();
 mosaicDefTx = sym.MosaicDefinitionTransaction.create(
-    undefined, 
-    nonce,
-    sym.MosaicId.createFromNonce(nonce, alice.address), //モザイクID
-    sym.MosaicFlags.create(supplyMutable, transferable, restrictable, revokable),
-    2,//divisibility:可分性
-    sym.UInt64.fromUint(0), //duration:有効期限
-    networkType
+  undefined,
+  nonce,
+  sym.MosaicId.createFromNonce(nonce, alice.address), //モザイクID
+  sym.MosaicFlags.create(supplyMutable, transferable, restrictable, revokable),
+  2, //divisibility:可分性
+  sym.UInt64.fromUint(0), //duration:有効期限
+  networkType
 );
 ```
 
-MosaicFlagsは以下の通りです。
+MosaicFlags は以下の通りです。
 
 ```js
 MosaicFlags {
   supplyMutable: false, transferable: false, restrictable: false, revokable: false
 }
 ```
+
 数量変更、第三者への譲渡、モザイクグローバル制限の適用、発行者からの還収の可否について指定します。
 この項目は後で変更することはできません。
 
@@ -44,67 +46,73 @@ MosaicFlags {
 
 divisibility:0 = 1  
 divisibility:1 = 1.0  
-divisibility:2 = 1.00  
+divisibility:2 = 1.00
 
 #### duration:有効期限
 
-0を指定した場合、無期限に使用することができます。
+0 を指定した場合、無期限に使用することができます。
 モザイク有効期限を設定した場合、期限が切れた後も消滅することはなくデータとしては残ります。
-アカウント1つにつき1000までしか所有することはできませんのでご注意ください。
-
+アカウント 1 つにつき 1000 までしか所有することはできませんのでご注意ください。
 
 次に数量を変更します
+
 ```js
 //モザイク変更
 mosaicChangeTx = sym.MosaicSupplyChangeTransaction.create(
-    undefined,
-    mosaicDefTx.mosaicId,
-    sym.MosaicSupplyChangeAction.Increase,
-    sym.UInt64.fromUint(1000000), //数量
-    networkType
+  undefined,
+  mosaicDefTx.mosaicId,
+  sym.MosaicSupplyChangeAction.Increase,
+  sym.UInt64.fromUint(1000000), //数量
+  networkType
 );
 ```
-supplyMutable:falseの場合、全モザイクが発行者にある場合だけ数量の変更が可能です。
-divisibility > 0 の場合は、最小単位を1として整数値で定義してください。
-（divisibility:2 で 1.00 作成したい場合は100と指定）
 
-MosaicSupplyChangeActionは以下の通りです。
+supplyMutable:false の場合、全モザイクが発行者にある場合だけ数量の変更が可能です。
+divisibility > 0 の場合は、最小単位を 1 として整数値で定義してください。
+（divisibility:2 で 1.00 作成したい場合は 100 と指定）
+
+MosaicSupplyChangeAction は以下の通りです。
+
 ```js
 {0: 'Decrease', 1: 'Increase'}
 ```
-増やしたい場合はIncreaseを指定します。
-上記2つのトランザクションをまとめてアグリゲートトランザクションを作成します。
+
+増やしたい場合は Increase を指定します。
+上記 2 つのトランザクションをまとめてアグリゲートトランザクションを作成します。
 
 ```js
 aggregateTx = sym.AggregateTransaction.createComplete(
-    sym.Deadline.create(epochAdjustment),
-    [
-      mosaicDefTx.toAggregate(alice.publicAccount),
-      mosaicChangeTx.toAggregate(alice.publicAccount),
-    ],
-    networkType,[],
+  sym.Deadline.create(epochAdjustment),
+  [
+    mosaicDefTx.toAggregate(alice.publicAccount),
+    mosaicChangeTx.toAggregate(alice.publicAccount),
+  ],
+  networkType,
+  []
 ).setMaxFeeForAggregate(100, 0);
 
-signedTx = alice.sign(aggregateTx,generationHash);
+signedTx = alice.sign(aggregateTx, generationHash);
 await txRepo.announce(signedTx).toPromise();
 ```
 
 アグリゲートトランザクションの特徴として、
 まだ存在していないモザイクの数量を変更しようとしている点に注目してください。
-配列化した時に、矛盾点がなければ1つのブロック内で問題なく処理することができます。
-
+配列化した時に、矛盾点がなければ 1 つのブロック内で問題なく処理することができます。
 
 ### 確認
+
 モザイク作成したアカウントが持つモザイク情報を確認します。
 
 ```js
 mosaicRepo = repo.createMosaicRepository();
-accountInfo.mosaics.forEach(async mosaic => {
+accountInfo.mosaics.forEach(async (mosaic) => {
   mosaicInfo = await mosaicRepo.getMosaic(mosaic.id).toPromise();
   console.log(mosaicInfo);
 });
 ```
+
 ###### 出力例
+
 ```js
 > MosaicInfo {version: 1, recordId: '622988B12A6128903FC10496', id: MosaicId, supply: UInt64, startHeight: UInt64, …}
 > MosaicInfo
@@ -118,7 +126,7 @@ accountInfo.mosaics.forEach(async mosaic => {
   > id: MosaicId
         id: Id {lower: 207493124, higher: 890137608} //モザイクID
     ownerAddress: Address {address: 'TBIL6D6RURP45YQRWV6Q7YVWIIPLQGLZQFHWFEQ', networkType: 152} //作成者アドレス
-    recordId: "62626E3C741381859AFAD4D5" 
+    recordId: "62626E3C741381859AFAD4D5"
     supply: UInt64 {lower: 1000000, higher: 0} //供給量
 ```
 
@@ -135,47 +143,50 @@ accountInfo.mosaics.forEach(async mosaic => {
 bob = sym.Account.generateNewAccount(networkType);
 
 tx = sym.TransferTransaction.create(
-    sym.Deadline.create(epochAdjustment),
-    bob.address,  //送信先アドレス
-    // 送信モザイクリスト
-    [ 
-      new sym.Mosaic(
-        new sym.MosaicId("72C0212E67A08BCE"), //テストネットXYM
-        sym.UInt64.fromUint(1000000) //1XYM(divisibility:6)
-      ),
-      new sym.Mosaic(
-        mosaicDefTx.mosaicId, // 5.1 で作成したモザイク
-        sym.UInt64.fromUint(1)  // 数量:0.01(divisibility:2 の場合)
-      )
-    ],
-    sym.EmptyMessage,
-    networkType
+  sym.Deadline.create(epochAdjustment),
+  bob.address, //送信先アドレス
+  // 送信モザイクリスト
+  [
+    new sym.Mosaic(
+      new sym.MosaicId("72C0212E67A08BCE"), //テストネットXYM
+      sym.UInt64.fromUint(1000000) //1XYM(divisibility:6)
+    ),
+    new sym.Mosaic(
+      mosaicDefTx.mosaicId, // 5.1 で作成したモザイク
+      sym.UInt64.fromUint(1) // 数量:0.01(divisibility:2 の場合)
+    ),
+  ],
+  sym.EmptyMessage,
+  networkType
 ).setMaxFee(100);
-signedTx = alice.sign(tx,generationHash);
+signedTx = alice.sign(tx, generationHash);
 await txRepo.announce(signedTx).toPromise();
-
 ```
-
-
 
 ##### 送信モザイクリスト
 
 複数のモザイクを一度に送信できます。
-XYMを送信するには以下のモザイクIDを指定します。
+XYM を送信するには以下のモザイク ID を指定します。
+
 - メインネット：6BED913FA20223F8
 - テストネット：72C0212E67A08BCE
 
 #### 送信量
+
 小数点もすべて整数にして指定します。
-XYMは可分性6なので、1XYM=1000000で指定します。
+XYM は可分性 6 なので、1XYM=1000000 で指定します。
 
 ### 送信確認
 
 ```js
-txInfo = await txRepo.getTransaction(signedTx.hash,sym.TransactionGroup.Confirmed).toPromise();
-console.log(txInfo); 
+txInfo = await txRepo
+  .getTransaction(signedTx.hash, sym.TransactionGroup.Confirmed)
+  .toPromise();
+console.log(txInfo);
 ```
+
 ###### 出力例
+
 ```js
 > TransferTransaction
     deadline: Deadline {adjustedValue: 12776690385}
@@ -204,7 +215,8 @@ console.log(txInfo);
     type: 16724
     version: 1
 ```
-TransferTransactionのmosaicsに2種類のモザイクが送信されていることが確認できます。また、TransactionInfoに承認されたブロックの情報が記載されています。
+
+TransferTransaction の mosaics に 2 種類のモザイクが送信されていることが確認できます。また、TransactionInfo に承認されたブロックの情報が記載されています。
 
 ## 5.3 現場で使えるヒント
 
@@ -217,72 +229,73 @@ TransferTransactionのmosaicsに2種類のモザイクが送信されている�
 
 #### NFT(non fungible token)
 
-発行枚数を1に限定し、supplyMutableをfalseに設定することで、1つだけしか存在しないトークンを発行できます。
+発行枚数を 1 に限定し、supplyMutable を false に設定することで、1 つだけしか存在しないトークンを発行できます。
 モザイクは作成したアカウントアドレスを改ざんできない情報として保有しているので、
 そのアカウントの送信トランザクションをメタ情報として利用できます。
-7章で説明するメタデータをモザイクに登録する方法もありますが、その方法は登録アカウントとモザイク作成者の連署によって更新可能なことにご注意ください。
+7 章で説明するメタデータをモザイクに登録する方法もありますが、その方法は登録アカウントとモザイク作成者の連署によって更新可能なことにご注意ください。
 
-NFTの実現方法はいろいろありますが、その一例の処理概要を以下に例示します（実行するためにはnonceやフラグ情報を適切に設定してください）。
+NFT の実現方法はいろいろありますが、その一例の処理概要を以下に例示します（実行するためには nonce やフラグ情報を適切に設定してください）。
+
 ```js
 supplyMutable = false; //供給量変更の可否
 
 //モザイク定義
 mosaicDefTx = sym.MosaicDefinitionTransaction.create(
-    undefined, nonce,mosaicId,
-    sym.MosaicFlags.create(supplyMutable, transferable, restrictable, revokable),
-    0,//divisibility:可分性
-    sym.UInt64.fromUint(0), //duration:無期限
-    networkType
+  undefined,
+  nonce,
+  mosaicId,
+  sym.MosaicFlags.create(supplyMutable, transferable, restrictable, revokable),
+  0, //divisibility:可分性
+  sym.UInt64.fromUint(0), //duration:無期限
+  networkType
 );
 
 //モザイク数量固定
 mosaicChangeTx = sym.MosaicSupplyChangeTransaction.create(
-    undefined,mosaicId,
-    sym.MosaicSupplyChangeAction.Increase, //増やす
-    sym.UInt64.fromUint(1), //数量1
-    networkType
+  undefined,
+  mosaicId,
+  sym.MosaicSupplyChangeAction.Increase, //増やす
+  sym.UInt64.fromUint(1), //数量1
+  networkType
 );
 
 //NFTデータ
-nftTx  = sym.TransferTransaction.create(
-    undefined, //Deadline:有効期限
-    alice.address, 
-    [],
-    sym.PlainMessage.create("Hello Symbol!"), //NFTデータ実体
-    networkType
-)
+nftTx = sym.TransferTransaction.create(
+  undefined, //Deadline:有効期限
+  alice.address,
+  [],
+  sym.PlainMessage.create("Hello Symbol!"), //NFTデータ実体
+  networkType
+);
 
 //モザイクの生成とNFTデータをアグリゲートしてブロックに登録
 aggregateTx = sym.AggregateTransaction.createComplete(
-    sym.Deadline.create(epochAdjustment),
-    [
-      mosaicDefTx.toAggregate(alice.publicAccount),
-      mosaicChangeTx.toAggregate(alice.publicAccount),
-      nftTx.toAggregate(alice.publicAccount)
-    ],
-    networkType,[],
+  sym.Deadline.create(epochAdjustment),
+  [
+    mosaicDefTx.toAggregate(alice.publicAccount),
+    mosaicChangeTx.toAggregate(alice.publicAccount),
+    nftTx.toAggregate(alice.publicAccount),
+  ],
+  networkType,
+  []
 ).setMaxFeeForAggregate(100, 0);
 ```
 
 モザイク生成時のブロック高と作成アカウントがモザイク情報に含まれているので同ブロック内のトランザクションを検索することにより、
-紐づけられたNFTデータを取得することができます。
+紐づけられた NFT データを取得することができます。
 
 ##### 注意事項
+
 モザイクの作成者が全数量を所有している場合、供給量を変更することが可能です。
 またトランザクションに分割してデータを記録した場合、改ざんできませんがデータの追記は可能です。
-NFTを運用する場合はモザイク作成者の秘密鍵を厳重に管理・あるいは破棄するなど、適切な運用にご注意ください。
-
+NFT を運用する場合はモザイク作成者の秘密鍵を厳重に管理・あるいは破棄するなど、適切な運用にご注意ください。
 
 #### 回収可能なポイント運用
 
-transferableをfalseに設定することで転売が制限されるため、資金決済法の影響を受けにくいポイントを定義することができます。
-またrevokableをtrueに設定することで、ユーザ側が秘密鍵を管理しなくても使用分を回収できるような中央管理型のポイント運用を行うことができます。
+transferable を false に設定することで転売が制限されるため、資金決済法の影響を受けにくいポイントを定義することができます。
+また revokable を true に設定することで、ユーザ側が秘密鍵を管理しなくても使用分を回収できるような中央管理型のポイント運用を行うことができます。
 
 ```js
 transferable = false; //第三者への譲渡可否
 revokable = true; //発行者からの還収可否
 ```
-
-
-
-
