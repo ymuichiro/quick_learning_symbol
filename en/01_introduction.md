@@ -1,7 +1,3 @@
-### Start the Symbol blockchain practically from today
-
-# Quick learning Symbol
-
 # Introduction
 
 ## This document aims to
