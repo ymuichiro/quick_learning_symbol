@@ -2,3 +2,5 @@ remote_theme: rundocs/jekyll-rtd-theme
 title: Quick Learning Symbol
 baseurl: ""
 url: "https://learn.symbol-community.com"
+plugins:
+  - jekyll-sitemap
