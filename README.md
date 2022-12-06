@@ -1,9 +1,9 @@
-# Quick Learning Symbol
+### Start the Symbol blockchain practically from today
 
-Unlike general official documents that deal with technologies in general in an exhaustive manner, this document is an instructional guide to help you quickly acquire the skills to utilize the Symbol blockchain. It is structured in such a way that you can learn the whole picture for application development utilizing Symbol in a systematic and effortless manner by reading from the beginning.
-Please note that there are no explanations of how to construct nodes, consensus algorithms, incentive rewards, etc.
+# Quick learning Symbol
 
-Start learning from the links below!
+This manual is designed to help you quickly learn the skills required for utilisation of the Symbol blockchain. Unlike general official documents that deal with the technology comprehensively, this document is structured in a way that if you read it from the beginning, you can learn the whole picture of utilisation of the Symbol blockchain for developing applications in a systematic way without difficulty.  
+Incidentally, this document does not refer to the following matters, the node hosting method, consensus algorithm and incentive rewards.  
 
 # Languages
 
