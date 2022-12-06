@@ -7,5 +7,5 @@ Start learning from the links below!
 
 # Languages
 
-- [english](https://ymuichiro.github.io/quick_learning_symbol_test/en/)
-- [japanese](https://ymuichiro.github.io/quick_learning_symbol_test/ja/)
+- [english](en/README.md)
+- [japanese](ja/README.md)
