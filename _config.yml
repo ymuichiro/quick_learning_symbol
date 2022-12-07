@@ -1,11 +1,8 @@
 remote_theme: rundocs/jekyll-rtd-theme
-title: Quick Learning Symbol
+title: 速習Symbol
+description: Blockchain Symbol の学習コンテンツです
+lang: ja
 baseurl: ""
 url: "https://learn.symbol-community.com"
-languages: ["en", "ja"]
-default_lang: "en"
-exclude_from_localization: ["javascript", "images", "css", "public"]
-parallel_localization: true
-plugins:
-  - jekyll-sitemap
-  - jekyll-polyglot
+google:
+  gtag: G-VBB48C2L7W
