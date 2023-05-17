@@ -107,6 +107,9 @@ await txRepo.announceAggregateBondedCosignature(signedCosTx).toPromise();
 ハッシュロックトランザクションは起案者(トランザクションを作成し最初に署名するアカウント)に限らず、誰が作成してアナウンスしても大丈夫ですが、
 アグリゲートトランザクションにそのアカウントが signer となるトランザクションを含めるようにしてください。
 モザイク送信無し＆メッセージ無しのダミートランザクションでも問題ありません（パフォーマンスに影響が出るための仕様とのことです）
+また、ハッシュロックトランザクションが承認された直後にボンデッドトランザクションをアナウンスした場合、
+ハッシュロックの承認がネットワーク全体に伝播する前にボンデッドトランザクションを受け取ってしまうノードが出てくる可能性があります。
+そのような状態を防ぐために、ボンデッドトランザクションはハッシュロックトランザクションが承認された後しばらく待ってからアナウンスするようにしてください。
 
 ## 8.2 シークレットロック・シークレットプルーフ
 
@@ -178,7 +181,7 @@ LockHashAlgorithm は以下の通りです。
 {0: 'Op_Sha3_256', 1: 'Op_Hash_160', 2: 'Op_Hash_256'}
 ```
 
-ロック時に解除先を指定するのでBob以外のアカウントが解除しても転送先（Bob）を変更することはできません。
+ロック時に解除先を指定するので Bob 以外のアカウントが解除しても転送先（Bob）を変更することはできません。
 ロック期間は最長で 365 日(ブロック数を日換算)までです。
 
 承認されたトランザクションを確認します。
@@ -261,14 +264,14 @@ console.log(txInfo);
 
 SecretProofTransaction にはモザイクの受信量の情報は含まれていません。
 ブロック生成時に作成されるレシートで受信量を確認します。
-レシートタイプ:LockHash_Completed で Bob 宛のレシートを検索してみます。
+レシートタイプ:LockSecret_Completed で Bob 宛のレシートを検索してみます。
 
 ```js
 receiptRepo = repo.createReceiptRepository();
 
 receiptInfo = await receiptRepo
   .searchReceipts({
-    receiptType: sym.ReceiptTypeLockHash_Completed,
+    receiptType: sym.LockSecret_Completed,
     targetAddress: bob.address,
   })
   .toPromise();

@@ -67,6 +67,12 @@ listener.open().then(() => {
 
 未承認トランザクションは transactionInfo.height=0 　で受信します。
 
+##### 注意事項
+
+受信先アドレスやモザイク ID で受信検知をする場合は送信者がネームスペースを利用して送信している場合もあるのでご注意ください。
+たとえば、メインネットで XYM のモザイク ID は`6BED913FA20223F8`ですが、ユーザーがネームスペース ID(symbol.xym)で送信した場合はトランザクションには
+`E74B99BA41F4AFEE`という ID が記録されています。
+
 ## 10.3 ブロック監視
 
 新規に生成されたブロックを検知します。
@@ -262,7 +268,7 @@ listener = await listenerKeepOpening(NODES);
 
 ```js
 //rxjsの読み込み
-op  = require("/node_modules/rxjs/operators");
+op = require("/node_modules/rxjs/operators");
 rxjs = require("/node_modules/rxjs");
 
 //アグリゲートトランザクション検知

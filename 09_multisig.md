@@ -205,7 +205,7 @@ aggregateTx = sym.AggregateTransaction.createBonded(
   ],
   networkType,
   []
-).setMaxFeeForAggregate(100, 0); // 第二引数に連署者の数:0
+).setMaxFeeForAggregate(100, 2); // 第二引数に連署者の数:2
 
 signedAggregateTx = carol1.sign(aggregateTx, generationHash);
 
@@ -336,7 +336,7 @@ aggregateTx = sym.AggregateTransaction.createComplete(
 
 signedTx = aggregateTx.signTransactionWithCosignatories(
   carol1,
-  [carol2,carol4],
+  [carol2, carol4],
   generationHash
 );
 await txRepo.announce(signedTx).toPromise();

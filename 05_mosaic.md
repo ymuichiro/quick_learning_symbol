@@ -299,3 +299,14 @@ transferable を false に設定することで転売が制限されるため、
 transferable = false; //第三者への譲渡可否
 revokable = true; //発行者からの還収可否
 ```
+
+トランザクションは以下のように記述します。
+
+```js
+revocationTx = sym.MosaicSupplyRevocationTransaction.create(
+  sym.Deadline.create(epochAdjustment),
+  bob.address, //回収先アドレス
+  new sym.Mosaic(mosaicId, sym.UInt64.fromUint(3)), //回収モザイクIDと数量
+  networkType
+).setMaxFee(100);
+```
