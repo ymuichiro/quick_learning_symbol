@@ -7,7 +7,7 @@
 
 本書は、JavaScriptのソースコードをWebブラウザのコンソールで実行する形式でSymbolブロックチェーンに触れてみることで、ブロックチェーンについての実践的な知識と理解を、誰もが無理なく系統立てて学習できるよう構成されています。金融だけではなく、さらに多くのビジネスや文化の「現場」で活躍する人々にも、ブロックチェーンの力を活かすヒントを得てもらうことができるような内容になっていると思いますので、ぜひ本書を片手にご自身で手を動かしてみてブロックチェーンに触れてみてください！
 
-![閲覧する](https://techbookfest.org/product/1iLNyYUUpfvh2EsB8qj0U0?productVariantID=s17xwr6eNj8fxjXC91YBRp)
+[閲覧する](https://techbookfest.org/product/1iLNyYUUpfvh2EsB8qj0U0?productVariantID=s17xwr6eNj8fxjXC91YBRp)
 
 | 媒体        | 価格    |
 | ----------- | ------ |
@@ -23,7 +23,7 @@
 
 本書は、C#のソースコードを実行する形式でSymbolブロックチェーンに触れてみることで、ブロックチェーンについての実践的な知識と理解を、C#の実行環境さえあれば、無理なく系統立てて学習できるよう構成されています。ゲーム開発やPC向けアプリ開発や各種業務用アプリ開発等といった、金融だけではないさらに多くのビジネスや文化の「現場」で活躍する人々にも、ブロックチェーンの力を活かすヒントを得てもらうことができるような内容になっていると思いますので、ぜひ本書を片手にご自身で手を動かしてみてブロックチェーンに触れてみてください！
 
-![閲覧する](https://techbookfest.org/product/rMKkMgBq9ZadJSecDytR9k?productVariantID=e4FVYU0MFV2TZMGMRtg6d5)
+[閲覧する](https://techbookfest.org/product/rMKkMgBq9ZadJSecDytR9k?productVariantID=e4FVYU0MFV2TZMGMRtg6d5)
 
 | 媒体        | 価格    |
 | ----------- | ------ |
