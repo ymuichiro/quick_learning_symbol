@@ -8,7 +8,7 @@ JavaScript を使用します。
 
 ### SDK
 
-symbol-sdk-typescript-javascript v2.0.3  
+symbol-sdk-typescript-javascript v2.0.4  
 https://github.com/symbol/symbol-sdk-typescript-javascript
 
 上記 SDK を browserify 化したものをブラウザの開発者コンソールに読み込ませて使用します。  
@@ -16,7 +16,7 @@ https://github.com/xembook/nem2-browserify
 
 ##### 注意
 
-現在 symbol-sdk v3.0.0 がアルファ版としてリリースされており、v 2.0.3 は deprecated です。  
+現在 symbol-sdk v3.0.0がアルファ版としてリリースされており、v2.0.4 はdeprecatedです。  
 v3 では rxjs に依存した多くの機能が削除されるため、REST API への直接アクセスが推奨されます。
 
 ### リファレンス
